@@ -20,7 +20,7 @@ correlationPlot <- function(data, columns = c(1:ncol(data)-1), mixtures = F)  {
       mapping = aes(color = Sources, alpha = 0.25), legend = c(1, 
         1)) + theme_bw() + theme(legend.position = "bottom")
   } else {
-    data1 <- data1[which(!data1$Sources == "Target"), ]
+    data1 <- data1[which(!data1$Sources == "Mixture"), ]
     ggpairs(data = data1, columns = columns+1, upper = list(continuous = "cor"), 
       lower = list(combo = "facetdensity"), title = "Correlation Matrix", 
       mapping = aes(color = Sources, alpha = 0.25), legend = c(1, 

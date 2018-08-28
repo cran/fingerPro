@@ -10,5 +10,5 @@ writeResults(data)
 \item{data}{Data frame containing the relative contribution of the potential sediment sources for each sediment mixture in the dataset}
 }
 \description{
-The function saves the results in the workspace for all the sediment mixture samples and for each sediment mixture sample separately
+The function saves the results in the workspace file for all the sediment mixture samples and for each sediment mixture sample separately
 }

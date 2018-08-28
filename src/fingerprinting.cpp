@@ -5,14 +5,16 @@
 #include <RcppGSL.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
-
+// [[Rcpp::depends(RcppProgress)]]
+#include <progress.hpp>
 // [[Rcpp::depends(RcppGSL)]]
 using namespace Rcpp;
 
 gsl_rng *rng;
 
 typedef struct {
-	double gof;
+	double gof1;
+	double gof2;
 	double *w;
 } type_try;
 
@@ -22,9 +24,9 @@ int compare(const void *p1, const void *p2)
 	type_try *elem1 = (type_try*)p1;    
 	type_try *elem2 = (type_try*)p2;
 
-	if ( elem1->gof < elem2->gof )
+	if ( elem1->gof2 < elem2->gof2 )
 	  return 1;
-	else if ( elem1->gof > elem2->gof )
+	else if ( elem1->gof2 > elem2->gof2 )
 	  return -1;
 	else
 	  return 0;
@@ -54,7 +56,7 @@ double correct(double avg, double dev, int n)
 }
 
 // [[Rcpp::export]]
-Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=100, int iter=100, int seed=69512)
+Rcpp::DataFrame unmix_c(SEXP sources, SEXP samples, int trials=100, int iter=100, int seed=69512)
 {
 	// Construct the data.frame object
 	Rcpp::DataFrame dfs = Rcpp::DataFrame(sources);
@@ -109,7 +111,7 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 
 	int i, j, k, l, ii;
 	int vars, nsource, points;
-	double gof, sum, avg, des, *max, *min, *try1, *try2;
+	double gof1, gof2, sum, avg, des, *max, *min, *try1, *try2;
 	double **source, **source_d, **source_c, **point;
 	int *source_n;
 
@@ -202,7 +204,8 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 	type_try tried, best;
 	tried.w = (double*) malloc( nsource * sizeof(double) );
 	best.w = (double*) malloc( nsource * sizeof(double) );
-
+	best.gof1 = 0.0;
+	best.gof2 = 0.0;
 	// Compute maximum values to normalize
 	for(i = 0 ; i < vars ; i++ )
 	{
@@ -243,6 +246,8 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 	}
 	trials = j;
 
+	Progress p(points*iter, true);
+
 	// Analize each point
 	for( i = 0 ; i < points ; i++ )
 	{
@@ -255,15 +260,11 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 //					i + 1, points, 100.0*(float)(ii+1)/(float)iter, '%');
 //			fflush(stdout);
 
-			// compute corrected sources
-			for( k = 0 ; k < vars ; k++ )
-			{
-				for( l = 0 ; l < nsource ; l++ )
-				{
-					source_c[l][k] = correct(source[l][k], source_d[l][k], source_n[l]);
-				}
-			}
+			if (Progress::check_abort() )
+			return -1.0;
 
+			p.increment();
+		
 			if(ii == 0)
 			{
 				for( k = 0 ; k < vars ; k++ )
@@ -271,6 +272,17 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 					for( l = 0 ; l < nsource ; l++ )
 					{
 						source_c[l][k] = source[l][k];
+					}
+				}
+			}
+			// compute corrected sources
+			else
+			{
+				for( k = 0 ; k < vars ; k++ )
+				{
+					for( l = 0 ; l < nsource ; l++ )
+					{
+						source_c[l][k] = correct(source[l][k], source_d[l][k], source_n[l]);
 					}
 				}
 			}
@@ -293,7 +305,8 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 				try1[nsource - 1] = 1.0 - try2[nsource - 2];
 
 				// measure error
-				gof = 0.0;
+				gof1 = 0.0;
+				gof2 = 0.0;
 				for( k = 0 ; k < vars ; k++ )
 				{
 					sum = 0.0;
@@ -306,17 +319,19 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 						sum = sum + source_c[l][k] * try1[l];
 					}
 					// GOF1
-					gof = gof + fabs( point[i][k] - sum ) / ( max[k] - min[k] );
+					gof1 = gof1 + fabs( point[i][k] - sum ) / ( max[k] - min[k] );
 
 					// GOF2
-					//gof = gof + ( point[i][k] - sum ) * ( point[i][k] - sum ) / ( max[k] - min[k] ) / ( max[k] - min[k] );
+					gof2 = gof2 + ( point[i][k] - sum ) * ( point[i][k] - sum ) / ( max[k] - min[k] ) / ( max[k] - min[k] );
 				}
-				gof = 1.0 - gof / (double) vars;
+				gof1 = 1.0 - gof1 / (double) vars;
+				gof2 = 1.0 - gof2 / (double) vars;
 
 				// save best result
-				if(gof > best.gof || j==0)
+				if(gof2 > best.gof2 || j==0)
 				{
-					best.gof = gof;
+					best.gof1 = gof1;
+					best.gof2 = gof2;
 					for( k = 0 ; k < nsource ; k++ )
 					{
 						best.w[k] = try1[k];
@@ -327,7 +342,7 @@ Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials=1
 
 			// print average and standar deviation values in the top
 			as<CharacterVector>(myList[0])[i*iter+ii] = i + 1;
-			as<CharacterVector>(myList[1])[i*iter+ii] = best.gof;
+			as<CharacterVector>(myList[1])[i*iter+ii] = best.gof1;
 			for( j = 0 ; j < nsource ; j++ )
 			{
 				as<CharacterVector>(myList[2+j])[i*iter+ii] = best.w[j];

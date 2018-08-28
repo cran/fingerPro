@@ -4,11 +4,11 @@
 \name{catchment}
 \alias{catchment}
 \title{Land use and fingerprinting properties in a Mediterranean catchment}
-\format{A data frame with 22 rows and 25 variables:
+\format{A data frame with 22 rows and 23 variables:
 \describe{
   \item{id}{reference number id of each sample analysed}
   \item{Land_Use}{grouping variable, in this study refers to the different land uses in the catchment}
-  \item{Cs.137, K.40, Bi.214, Ra.226, Th.232, U.238, Ba, Nb, Zr, Sr, Rb, Pb, Zn, Fe, Mn, Cr, V, Ti, Ca, K, Al, Si, Mg}{value of the tracer property for each sample}
+  \item{Pbex, K40, Bi214, Ra226, Th232, U238, Nb, Sr, Rb, Pb, Zn, Fe, Mn, Cr, V, Ti, Ca, K, Al, Si, Mg}{value of the tracer property for each sample}
 }}
 \usage{
 catchment

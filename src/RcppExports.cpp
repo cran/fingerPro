@@ -6,9 +6,9 @@
 
 using namespace Rcpp;
 
-// unmixing_corrected_gof1
-Rcpp::DataFrame unmixing_corrected_gof1(SEXP sources, SEXP samples, int trials, int iter, int seed);
-RcppExport SEXP _fingerPro_unmixing_corrected_gof1(SEXP sourcesSEXP, SEXP samplesSEXP, SEXP trialsSEXP, SEXP iterSEXP, SEXP seedSEXP) {
+// unmix_c
+Rcpp::DataFrame unmix_c(SEXP sources, SEXP samples, int trials, int iter, int seed);
+RcppExport SEXP _fingerPro_unmix_c(SEXP sourcesSEXP, SEXP samplesSEXP, SEXP trialsSEXP, SEXP iterSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -17,13 +17,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type trials(trialsSEXP);
     Rcpp::traits::input_parameter< int >::type iter(iterSEXP);
     Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(unmixing_corrected_gof1(sources, samples, trials, iter, seed));
+    rcpp_result_gen = Rcpp::wrap(unmix_c(sources, samples, trials, iter, seed));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_fingerPro_unmixing_corrected_gof1", (DL_FUNC) &_fingerPro_unmixing_corrected_gof1, 5},
+    {"_fingerPro_unmix_c", (DL_FUNC) &_fingerPro_unmix_c, 5},
     {NULL, NULL, 0}
 };
 

@@ -12,23 +12,23 @@
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("s_max", "t_max","s_min","t_min"))
 
 rangeTest <- function(data) {
-  # reorder groups
+  # reorder factor levels in order of appearance
   data[, 2] <- factor(data[, 2], levels = unique(data[, 2]))
 
-  # read land uses (second column)
-  land_uses <- data[, 2]
+  # read groups (second column)
+  groups <- data[, 2]
   
-  # replace all uses with 'source' except the last one
-  levels(land_uses)[1:nlevels(land_uses) - 1] <- "source"
+  # replace all groups with 'source' except the last one
+  levels(groups)[1:nlevels(groups) - 1] <- "source"
   
-  # compute min values for target and source groups
-  min <- aggregate(data[, 3:ncol(data)], list(land_uses), min)
+  # compute min values for mixture and source groups
+  min <- aggregate(data[, 3:ncol(data)], list(groups), min)
   n_min <- c("s_min", "t_min")
   mint <- as.data.frame(t(min[, -1]))
   colnames(mint) <- n_min
   
-  # compute max values for target and source groups
-  max <- aggregate(data[, 3:ncol(data)], list(land_uses), max)
+  # compute max values for mixture and source groups
+  max <- aggregate(data[, 3:ncol(data)], list(groups), max)
   n_max <- c("s_max", "t_max")
   maxt <- as.data.frame(t(max[, -1]))
   colnames(maxt) <- n_max

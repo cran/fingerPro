@@ -5,46 +5,57 @@
 #' @param data Data frame containing sediment source and mixtures
 #' @param samples Number of samples in each hypercube dimension
 #' @param iter Iterations in the source variability analysis
-#' @param seed Seed for the random number generator
+#' @param seed Seed for the random number generator 
 #'
 #' @return Data frame containing the relative contribution of the sediment sources for each sediment mixture and iterations
 #'
 #' @export
 #'
-unmix <- function(data, samples = 100L, iter = 100L, seed = 123456L) {
+unmix <- function(data, samples = 100L, iter = 100L, seed = 123456L){
   system.time({
     sources <- inputSource(data)
     mixtures <- inputSample(data)
     
     # verify the number of sources and properties
-    if (nrow(sources) >= ncol(mixtures) - 1) 
-    if (nrow(sources) >= ncol(mixtures) - 1) {
+    if (nrow(sources) -1 >= ncol(mixtures) ) {
       warning("As a minimum, n - 1 properties are required to discriminate rigorously between n sources. Additional properties are frequently required to increase the reliability of the results")
     }
     
+    nsources1<- as.data.frame(unique(data[,2]))
+    nsources<- nsources1[-nrow(nsources1),] 
+    nsources<- as.vector(nsources) 
+    #
+    cat("Summary of the model imputs:
+        ", ncol(data)-2, "variables from",nrow(nsources1)-1,"sources (",nsources,")")
     
-    results <- unmixing_corrected_gof1(sources, mixtures, samples, 
-      iter, seed)
-
-    # reorder groups
+    invisible(readline(prompt="Press [enter] to unmix your data"))
+    
+    # results <- unmix_c(sources, mixtures, samples, 1, seed)  
+    if (iter==1) {  
+      results <- unmix_c(sources, mixtures, samples, iter, seed)
+    }
+    else {  
+      results <- unmix_c(sources, mixtures, samples, iter+1, seed)
+    }
+    # reorder factor levels in order of appearance
     data[, 2] <- factor(data[, 2], levels = unique(data[, 2]))
-    # read land uses (second column)
-    land_uses <- data[, 2]
-    # asume last use is target
-    target <- levels(land_uses)[nlevels(land_uses)]
+    # read groups (second column)
+    groups <- data[, 2]
+    # asume last group is mixtures
+    mixture <- levels(groups)[nlevels(groups)]
     # read sources
-    sources <- data[!land_uses == target, ]
-    # remove unused groups (target)
-    land_uses <- levels(droplevels(sources[, 2]))
+    sources <- data[!groups == mixture, ]
+    # remove mixture level
+    groups <- levels(droplevels(sources[, 2]))
     # replace column names
-    colnames(results) <- c("id", "GOF", land_uses)
+    colnames(results) <- c("id", "GOF", groups)
     
-    # read land uses (second column)
-    land_uses <- data[, 2]
-    # asume last use is target
-    target <- levels(land_uses)[nlevels(land_uses)]
-    # read sources
-    mixtures <- data[land_uses == target, ]
+    # read groups (second column)
+    groups <- data[, 2]
+    # asume last group is mixtures
+    mixture <- levels(groups)[nlevels(groups)]
+    # read mixtures
+    mixtures <- data[groups == mixture, ]
     # replace sample names
     results$id <- as.character(results$id)
     for (i in 1:length(mixtures[, 1])) {
@@ -55,11 +66,32 @@ unmix <- function(data, samples = 100L, iter = 100L, seed = 123456L) {
       results[, i] <- as.numeric(as.character(results[, i]))
     }
     
-    results <- results[order(results[, 1], -results[, 2]), ]
+    results <- results[order(results[, 1]), ]
     rownames(results) <- 1:nrow(results)
     
+    
     {
+      if (iter==1) {  
+        cat("Summary of the model outputs:",
+            "\n",
+            "See below the result/s of the unmixing process using the central value or the average with no correction",
+            "\n",
+            "\n")
+        print(aggregate(. ~ id, data = results, function(x) c(mean = mean(x))))
+          }  
+        
+      else {  
+        cat("Summary of the model outputs:",
+            "\n",
+            "See below the result/s of the unmixing process using the source variability of the best", iter, "results, notice that the first row of the results is the central value or the average with no correction",
+            "\n",
+            "\n")
+        print(aggregate(. ~ id, data = results, function(x) c(mean = mean(x), SD = sd(x))))
+        
+          }  
+      }
+      
       return(results)
-    }
+    
   })
 }

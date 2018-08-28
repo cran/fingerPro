@@ -10,19 +10,19 @@
 #' @export
 #'
 DFATest <- function(data, niveau = 0.1) {
-  # reorder the groups
+  # reorder factor levels in order of appearance
   data[, 2] <- factor(data[, 2], levels = unique(data[, 2]))
 
-  # read land uses (second column)
-  land_uses <- data[, 2]
+  # read groups (second column)
+  groups <- data[, 2]
   
-  # asume last use is target
-  target <- levels(land_uses)[nlevels(land_uses)]
+  # asume last group is mixtures
+  mixture <- levels(groups)[nlevels(groups)]
   
   # read sources
-  sources <- data[!land_uses == target, ]
+  sources <- data[!groups == mixture, ]
   
-  # remove unused groups (target)
+  # remove mixture level
   s_groups <- droplevels(sources[, 2])
   
   # extract properties

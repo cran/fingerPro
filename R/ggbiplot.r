@@ -37,7 +37,7 @@
 #' @param varname.size    size of the text for variable names
 #' @param varname.adjust  adjustment factor the placement of the variable names, >= 1 means farther from the arrow
 #' @param varname.abbrev  whether or not to abbreviate the variable names
-#'
+#' @param circle.prob     size of the ellipse in Normal probability
 #' @return                a ggplot2 plot
 #' @export
 #' 
@@ -51,7 +51,7 @@ ggbiplot <- function(pcobj, choices = 1:2, scale = 1, pc.biplot = TRUE,
                       var.axes = TRUE, 
                       circle = FALSE, circle.prob = 0.69, 
                       varname.size = 3, varname.adjust = 1.5, 
-                      varname.abbrev = FALSE, ...)
+                      varname.abbrev = FALSE)
 {
 
 

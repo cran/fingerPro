@@ -17,10 +17,3 @@ Data frame only containing the variables that pass the Kruskal-Wallis test
 \description{
 This function excludes from the original data frame the properties which do not show significant differences between sources.
 }
-\examples{
-#Load the dataset called "catchment" 
-data <- catchment
-#Some of the tracer properties are collinear
-data <- KWTest(data)
-#The test discard those tracer properties that were unable to discriminate between selected sources
-}

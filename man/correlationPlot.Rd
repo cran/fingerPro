@@ -16,9 +16,3 @@ correlationPlot(data, columns = c(1:ncol(data) - 1), mixtures = F)
 \description{
 The function displays a correlation matrix of each of the properties divided by the different sources to help the user in the decision.
 }
-\examples{
-#Load the dataset called "catchment" 
-data <- catchment
-correlationPlot(data, columns = 1:4)
-#The function display a correlation plot with the selected tracer properties
-}

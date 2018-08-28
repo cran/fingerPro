@@ -16,9 +16,3 @@ boxPlot(data, columns = 1:ncol(data) - 2, ncol = 3)
 \description{
 The boxplot compactly shows the distribution of a continuous variable. It displays five summary statistics (the median, two hinges and two whiskers), and all "outlying" points individually.
 }
-\examples{
-#Load the dataset called "catchment" 
-data <- catchment
-boxPlot(data,columns = 1:4, ncol = 2)
-#The function display the boxplot of the selected tracer properties
-}

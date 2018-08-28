@@ -17,10 +17,3 @@ Data frame only containing the variables that pass the DFA test
 \description{
 Performs a stepwise forward variable selection using the Wilk's Lambda criterion.
 }
-\examples{
-#Load the dataset called "catchment" 
-data <- catchment
-#Some of the tracer properties are collinear
-data <- DFATest(data)
-#The test discard those tracer properties that were unable to discriminate between selected sources
-}
