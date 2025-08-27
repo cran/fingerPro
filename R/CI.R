@@ -1,0 +1,26 @@
+#' @title Compute Conservativeness Index (CI) for individual tracers
+#'
+#' @description This function calculates the Conservativeness Index (CI) for each tracer based on the results of an individual tracer analysis.
+#'
+#' The CI index was adapted from its original definition to better describe the conservativeness of tracers in a high-dimensional space of multiple sources. The predicted source contributions from each tracer were first calculated and characterized by their centroid. Then, the CI index was calculated as the percentage of solutions with conservative apportionments (0 <= wi <= 1) relative to the centroid position. This new definition of the CI does not penalize tracers with dominant apportionments from one source and distributions close to a vertex of the physical space, unlike the previous definition.
+#'
+#' @param ita A list of data frames, where each data frame contains the predicted apportionments for a specific tracer, as obtained from the `individual_tracer_analysis` function.
+#'
+#' @return A data frame containing the CI value for each tracer.
+#'
+#' @references
+#' Lizaga, I., Latorre, B., Bodé, S., Gaspar, L., Boeckx, P., & Navas, A. (2024). Combining isotopic and elemental tracers for enhanced sediment source partitioning in complex catchments. *Journal of Hydrology*, 631, 130768. https://doi.org/10.1016/j.jhydrol.2024.130768
+#'
+#' Lizaga, I., Latorre, B., Gaspar, L., & Navas, A. (2020). Consensus ranking as a method to identify non-conservative and dissenting tracers in fingerprinting studies. *Science of The Total Environment*, *720*, 137537. https://doi.org/10.1016/j.scitotenv.2020.137537
+#'
+#' @export
+CI <- function(ita) {
+
+	CI <- list()
+	CI <- ita[[length(ita)]]
+	names(CI)[[1]] <- "tracer"
+	names(CI)[[2]] <- "CI_value"
+	CI$tracer <- gsub("^mean_", "", CI$tracer)
+	return(CI)
+}
+
